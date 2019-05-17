@@ -124,8 +124,6 @@ def draw_graph(parse_result):
     convert_to_graph(parse_result)
     G.add_nodes_from(nodes)
     G.add_edges_from(edges)
-    print(G.nodes)
-    print(G.edges)
     pos = nx.spring_layout(G)
     nx.draw_networkx_nodes(G, pos)
     nx.draw_networkx_edges(G, pos)
@@ -134,11 +132,33 @@ def draw_graph(parse_result):
     plt.show()
 
 
-input_logic = "!(a1&(b|c&(!v)))"
-parse_result = parse(input_logic)
-draw_graph(parse_result)
+def replace_to_nand_logic(expr):
+    if type(expr) == tuple:
+        operator = expr[0]
+        if operator == '!':
+            return ('⊼', replace_to_nand_logic(expr[1]), replace_to_nand_logic(expr[1]))
+        elif operator == '&':
+            first_gate = ('⊼', replace_to_nand_logic(expr[1]), replace_to_nand_logic(expr[2]))
+            return ('⊼', first_gate, first_gate)
+        elif operator == '|':
+            first_gate = ('⊼', replace_to_nand_logic(expr[1]), replace_to_nand_logic(expr[1]))
+            second_gate = ('⊼', replace_to_nand_logic(expr[2]), replace_to_nand_logic(expr[2]))
+            return ('⊼', first_gate, second_gate)
+        else:
+            first_gate = ('⊼', replace_to_nand_logic(expr[1]), replace_to_nand_logic(expr[2]))
+            second_gate = ('⊼', replace_to_nand_logic(expr[1]), first_gate)
+            third_gate = ('⊼', first_gate, replace_to_nand_logic(expr[2]))
+            return ('⊼', second_gate, third_gate)
+    else:
+        return expr
 
+
+input_logic = "!(a1&(b|c&(!v)))"
 input_logic = "a&b|c|(!s&o)"
+print (parse(input_logic))
+print (replace_to_nand_logic(parse('a&b')))
+draw_graph(parse(input_logic))
+
 # print(parse(input_logic))
 if errors:
     print("Invalid expression")
