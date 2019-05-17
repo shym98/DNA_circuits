@@ -1,3 +1,6 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
 input_logic = ""
 errors = False
 variables = []
@@ -52,10 +55,11 @@ def find_operator(expr, operator_type):
     return -1
 
 
+operators = ['!', '|', '^', '&']
+
+
 def parse(expr):
     global errors
-
-    operators = ['!', '|', '^', '&']
 
     if len(expr) == 0:
         errors = True
@@ -85,9 +89,56 @@ def parse(expr):
     return expr
 
 
+operators_count = [0, 0, 0, 0]
+G = nx.Graph()
+nodes = []
+edges = []
+labels = {}
+
+
+def convert_to_graph(parse_expr, prev=''):
+    if type(parse_expr) == tuple:
+        operator = parse_expr[0]
+        node_label = operator
+        operators_count[operators.index(operator)] += 1
+        operator += str(operators_count[operators.index(operator)])
+
+        nodes.append(operator)
+        labels[operator] = node_label
+        if prev != '':
+            edges.append((prev, operator))
+
+        arguments = []
+        for i in range(1, len(parse_expr)):
+            arguments.append(parse_expr[i])
+        for i in arguments:
+            convert_to_graph(i, operator)
+    else:
+        nodes.append(parse_expr)
+        labels[parse_expr] = parse_expr
+        if prev != '':
+            edges.append((prev, parse_expr))
+
+
+def draw_graph(parse_result):
+    convert_to_graph(parse_result)
+    G.add_nodes_from(nodes)
+    G.add_edges_from(edges)
+    print(G.nodes)
+    print(G.edges)
+    pos = nx.spring_layout(G)
+    nx.draw_networkx_nodes(G, pos)
+    nx.draw_networkx_edges(G, pos)
+    nx.draw_networkx_labels(G, pos, labels, font_size=16)
+    plt.savefig("simple_path.png")
+    plt.show()
+
+
 input_logic = "!(a1&(b|c&(!v)))"
-print(parse(input_logic))
+parse_result = parse(input_logic)
+draw_graph(parse_result)
+
 input_logic = "a&b|c|(!s&o)"
-print(parse(input_logic))
+# print(parse(input_logic))
 if errors:
     print("Invalid expression")
