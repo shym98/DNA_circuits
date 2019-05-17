@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from testDNA.DNA import generate_output
 
 input_logic = ""
 errors = False
@@ -55,7 +56,7 @@ def find_operator(expr, operator_type):
     return -1
 
 
-operators = ['!', '|', '^', '&']
+operators = ['!', '|', '^', '&', '⊼']
 
 
 def parse(expr):
@@ -89,7 +90,7 @@ def parse(expr):
     return expr
 
 
-operators_count = [0, 0, 0, 0]
+operators_count = [0, 0, 0, 0, 0]
 G = nx.Graph()
 nodes = []
 edges = []
@@ -153,11 +154,41 @@ def replace_to_nand_logic(expr):
         return expr
 
 
-input_logic = "!(a1&(b|c&(!v)))"
-input_logic = "a&b|c|(!s&o)"
-print (parse(input_logic))
-print (replace_to_nand_logic(parse('a&b')))
-draw_graph(parse(input_logic))
+values = {}
+
+
+def get_input_values():
+    for var in variables:
+        print("Enter", var, "value:")
+        input_val = int(input())
+        input_val = (False, True)[input_val == 1]
+        values[var] = input_val
+
+
+def DNA_computing_simulation(expr):
+    if type(expr) == tuple:
+        return generate_output(DNA_computing_simulation(expr[1]), calculate_output(expr[2]))
+    else:
+        return values[expr]
+
+
+def calculate_output(expr):
+    if type(expr) == tuple:
+        return not (calculate_output(expr[1]) and calculate_output(expr[2]))
+    else:
+        return values[expr]
+
+
+#input_logic = "!(a1&(b|c&(!v)))"
+#input_logic = "a&b|c|(!s&o)"
+input_logic = "a&(b|c)"
+logic = parse(input_logic)
+#draw_graph(logic)
+get_input_values()
+nand_logic = replace_to_nand_logic(logic)
+print(nand_logic)
+print("res:", calculate_output(nand_logic))
+print("DNA res:", DNA_computing_simulation(nand_logic))
 
 # print(parse(input_logic))
 if errors:
