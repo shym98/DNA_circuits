@@ -1,0 +1,15 @@
+.topbar {
+    background-color: #bd081c;
+    height: 100px;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    color: white;
+    justify-content: center;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}

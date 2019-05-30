@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import sys
-from testDNA.DNA import generate_output
+from DNA.DNA import generate_output
 
 input_logic = ""
 errors = False
@@ -130,8 +130,9 @@ def draw_graph(parse_result):
     nx.draw_networkx_nodes(G, pos)
     nx.draw_networkx_edges(G, pos)
     nx.draw_networkx_labels(G, pos, labels, font_size=16)
-    plt.savefig("simple_path.png")
-    plt.show()
+    plt.savefig(r"DNA\static\DNA\path1.png")
+    plt.clf()
+    #plt.show()
 
 
 def replace_to_nand_logic(expr):
@@ -166,16 +167,16 @@ def get_input_values():
         values[var] = input_val
 
 
-def DNA_computing_simulation(expr):
+def DNA_computing_simulation(expr, values):
     if type(expr) == tuple:
-        return generate_output(DNA_computing_simulation(expr[1]), calculate_output(expr[2]))
+        return generate_output(DNA_computing_simulation(expr[1], values), calculate_output(expr[2], values))
     else:
         return values[expr]
 
 
-def calculate_output(expr):
+def calculate_output(expr, values):
     if type(expr) == tuple:
-        return not (calculate_output(expr[1]) and calculate_output(expr[2]))
+        return not (calculate_output(expr[1], values) and calculate_output(expr[2], values))
     else:
         return values[expr]
 
@@ -184,14 +185,13 @@ def check_correctness(input_logic):
     global errors
     errors = False
     logic = parse(input_logic)
-    correct_file = open("correct.txt", "w+")
     if errors:
-        correct_file.write("0")
+        return False
     else:
-        correct_file.write("1")
         var_file = open("var.txt", "w+")
         for i in values:
             var_file.write(i)
+        return True
 
 
 def reset():
@@ -199,23 +199,25 @@ def reset():
     errors = False
     values = {}
     operators_count = [0, 0, 0, 0, 0]
-    G = nx.Graph()
-    nodes = []
-    edges = []
-    labels = {}
-    variables = []
+    G.clear()
+    nodes.clear()
+    edges.clear()
+    labels.clear()
+    variables.clear()
 
-if __name__ == 'main':
-    args = str(sys.argv)
-    args = args[1:]
-    reset()
-    if args[0] == '-c':
-        check_correctness(args[1])
+# if __name__ == 'main':
+#     args = str(sys.argv)
+#     args = args[1:]
+#     reset()
+#     if args[0] == '-c':
+#         check_correctness(args[1])
 
 #input_logic = "!(a1&(b|c&(!v)))"
 #input_logic = "a&b|c|(!s&o)"
-# input_logic = "a&(b|c)"
-# logic = parse(input_logic)
+input_logic = "a&(b|c)"
+logic = parse(input_logic)
+print(logic)
+print(replace_to_nand_logic(logic))
 # #draw_graph(logic)
 # get_input_values()
 # nand_logic = replace_to_nand_logic(logic)

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Logic circuit</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'DNA/styles.css' %}">
+</head>
+<body>
+    <div style="
+    background-color: #bd081c;
+    height: 100px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    justify-content: center;
+    font-size: 50px;">
+        Logic circuits
+    </div>
+    {% block form %}
+    <form method="POST" action="" style="margin-top: 20px; margin-left: 10px; margin-right: 10px; margin-bottom: 50px">
+        {% csrf_token %}
+
+        <div class="field has-addons">
+            <div class="control is-expanded">
+                <input class="input is-medium is-rounded"
+                       type="text" name="circuit"
+                       placeholder="circuit"
+                       {% if not correct %}
+                           style = "background-color: #ea817c"
+                       {% endif %}
+                       value={{ circuit_input }}
+
+                />
+            </div>
+            <div class="control">
+                <input class="button is-medium is-rounded is-info"
+                       type="submit" name = "check" value="Check correctness"/>
+            </div>
+        </div>
+        {% if pressed and correct%}
+            <div class="block" style="float: left">
+                <img src = "{% static "DNA/path1.png"  %}" width="640" height="480">
+                <div class="control">
+                    <input class="button is-rounded is-primary"
+                           type="submit" name = "get_res" value="Get result"
+                           style="margin-left: 80px; float: left"/>
+                </div>
+            </div>
+            <div class="block">
+                {% for variable in vars %}
+                    <div style="margin: 10px">
+                        <label class="label" style="float: left">
+                            {{ variable }} value:
+                        </label>
+                        <div class="control">
+                            <div class="select" style="margin-left: 5px">
+                                <select name={{ variable }} >
+                                    <option> 0 </option>
+                                    <option> 1 </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if get_res_pressed and correct%}
+            <label class="label"> <pre>{{ result }} </pre> </label>
+        {% endif %}
+    </form>
+    {% endblock %}
+</body>
+</html>
